@@ -1,5 +1,5 @@
 import styles from "../select.module.css";
-
+import { useState } from "react";
 type SelectOption = {
     label: string;
     value: any;
@@ -12,16 +12,49 @@ type SelectProps = {
 };
 
 function Select({ value, onChange, options }: SelectProps) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    function clearOptions() {
+        onChange(undefined);
+    }
+
+    function selectOption(option: SelectOption) {
+        onChange(option);
+    }
+
     return (
         <>
-            <div tabIndex={0} className={styles.container}>
-                <span className={styles.value}>Value</span>
-                <button className={styles["clear-btn"]}>X</button>
+            <div
+                tabIndex={0}
+                className={styles.container}
+                onClick={() => setIsOpen((prev) => !prev)}
+                onBlur={() => setIsOpen(false)}
+            >
+                <span className={styles.value}>{value?.label}</span>
+                <button
+                    className={styles["clear-btn"]}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        clearOptions();
+                    }}
+                >
+                    X
+                </button>
                 <div className={styles.divider}></div>
                 <div className={styles.caret}></div>
-                <ul className={`${styles.options} ${styles.show}`}>
+                <ul
+                    className={`${styles.options} ${isOpen ? styles.show : ""}`}
+                >
                     {options.map((option) => (
-                        <li key={option.label} className={option.value}>
+                        <li
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                selectOption(option);
+                                setIsOpen(false);
+                            }}
+                            key={option.label}
+                            className={option.value}
+                        >
                             {option.label}
                         </li>
                     ))}
